@@ -1,8 +1,8 @@
 IrrOculusVR
 ===========
 
-Oculus Rift SDK 0.4.0 support for Irrlicht 1.7.3 using DirectX 9. Should work with newer Irrlicht
-as well with minor modifications. OpenGL-support requires some changes to the shader.
+Oculus Rift SDK 0.4.0 support for Irrlicht 1.8.1 using DirectX 9.
+OpenGL-support requires some changes to the shader.
 
 The Oculus Rift-support is still experimental and hasn't been yet tested with a development kit.
 

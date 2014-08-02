@@ -11,14 +11,14 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 	hmd_ = ovrHmd_Create(0);
 	if (!hmd_)
 	{
-		printf("Oculus Rift not detected - creating debug HMD");
+		printf("Oculus Rift not detected - creating debug HMD\n");
 		// Create DK1 debug device if no HMD is detected
 		hmd_ = ovrHmd_CreateDebug(ovrHmd_DK1);
 
 	}
 	if (hmd_->ProductName[0] == '\0') 
 	{
-		printf("Oculus Rift detected - display not turned on");
+		printf("Oculus Rift detected - display not turned on\n");
 	}
 
 	// Attach to window for Direct HMD-mode. Haven't actually been able to test this - crashes my computer
@@ -130,10 +130,16 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 
 	irr::video::IGPUProgrammingServices* gpu = driver_->getGPUProgrammingServices();
 
-	renderMaterial_.MaterialType=
-		(irr::video::E_MATERIAL_TYPE)gpu->addHighLevelShaderMaterialFromFiles("media/oculus.fx","vs_main", 
-			irr::video::EVST_VS_2_0,
-			"media/oculus.fx","main", irr::video::EPST_PS_2_0, &distortionCB_, irr::video::EMT_SOLID, 0);
+	if(driver_->getDriverType() == irr::video::EDT_DIRECT3D9)
+		renderMaterial_.MaterialType=
+			(irr::video::E_MATERIAL_TYPE)gpu->addHighLevelShaderMaterialFromFiles("media/oculus.hlsl","vs_main", 
+				irr::video::EVST_VS_2_0,
+				"media/oculus.hlsl","main", irr::video::EPST_PS_2_0, &distortionCB_, irr::video::EMT_SOLID, 0);
+	else if(driver_->getDriverType() == irr::video::EDT_OPENGL)
+		renderMaterial_.MaterialType=
+			(irr::video::E_MATERIAL_TYPE)gpu->addHighLevelShaderMaterialFromFiles("media/oculus_vs.glsl","main", 
+				irr::video::EVST_VS_2_0,
+				"media/oculus_fs.glsl","main", irr::video::EPST_PS_2_a, &distortionCB_, irr::video::EMT_SOLID, 0);
 
 	// Generate nodes for the head rotations - feel free to replace with math
 	bodyRotationY_ = smgr_->addEmptySceneNode(0);

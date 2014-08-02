@@ -5,21 +5,29 @@
 
 using namespace irr;
 
-int Width = 1280;
-int Height = 720;
-
 int main()
 {
-    // Initialize Irrlicht
-	const core::dimension2du videoDim(Width,Height);
+	int width = 1280;
+	int height = 720;
+	irr::video::E_DRIVER_TYPE driverType = video::EDT_DIRECT3D9;
 
-	IrrlichtDevice *device = createDevice(video::EDT_DIRECT3D9, videoDim, 32, false );
+    // Initialize Irrlicht
+	const core::dimension2du videoDim(width,height);
+
+	IrrlichtDevice *device = createDevice(driverType, videoDim, 32, false );
 
 	video::IVideoDriver* driver = device->getVideoDriver();
 	scene::ISceneManager* smgr = device->getSceneManager();
 
+	// Get the window handle for Oculus Rift SDK
+	void *window = 0;
+	if(driverType == irr::video::EDT_DIRECT3D9)
+		window = driver->getExposedVideoData().D3D9.HWnd;
+	else if(driverType == irr::video::EDT_OPENGL) // OpenGL under windows - no idea how it's done in Linux
+		window = driver->getExposedVideoData().OpenGLWin32.HWnd;
+
 	// Initialize Oculus Rift Renderer
-	OculusRenderer oculusRenderer(driver->getExposedVideoData().D3D9.HWnd, driver, smgr);
+	OculusRenderer oculusRenderer(window, driver, smgr);
 
 
 	// FPS camera with no vertical movement. Use Oculus Rift for that
