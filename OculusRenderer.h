@@ -2,6 +2,7 @@
 Class for rendering the scene as SBS image to RTT and then performing Oculus Rift's distortion on the image.
 
 Copyright (c) 2014 Suvi Aalto
+http://www.coolhouse.fi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -42,15 +43,17 @@ public:
 	OculusRenderer(void *window, irr::video::IVideoDriver *driver, irr::scene::ISceneManager *smgr);
 	~OculusRenderer(void);
 
-	//! Draw the scene using player's position and rotation around Y-axis. Other rotations are read from Oculus Rift
+	//! Draw the scene using player's position and rotation around Y-axis. Other rotations are read from Oculus Rift.
+	//! Call this instead of SceneManager->drawAll();
+	//! Doesn't draw GUI. If you want to draw GUI then you should for example pre-render it to a billboard.
 	void drawAll(irr::core::vector3df playerPosition, float playerYRotation, irr::video::SColor bgColor);
 
 private:
-	ovrHmd				hmd_;
-	ovrEyeRenderDesc	eyeRenderDesc_[2];
-	ovrVector2f			uvScaleOffset_[2][2];
-	ovrRecti			eyeRenderViewport_[2];
-	ovrPosef			eyePose_[2];
+	ovrHmd hmd_;
+	ovrEyeRenderDesc eyeRenderDesc_[2];
+	ovrVector2f uvScaleOffset_[2][2];
+	ovrRecti eyeRenderViewport_[2];
+	ovrPosef eyePose_[2];
 
 	irr::video::IVideoDriver *driver_;
 	irr::scene::ISceneManager *smgr_;
@@ -58,8 +61,8 @@ private:
 	irr::video::ITexture *renderTexture_;
 
 	//! Eye distortion meshes
-	irr::core::array<irr::video::S3DVertex2TCoords>  EyeVB[2];
-	irr::core::array<unsigned short>  EyeIB[2];
+	irr::core::array<irr::video::S3DVertex2TCoords> EyeVB[2];
+	irr::core::array<unsigned short> EyeIB[2];
 	irr::video::SMaterial renderMaterial_;
 
 

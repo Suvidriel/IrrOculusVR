@@ -12,6 +12,7 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 	if (!hmd_)
 	{
 		printf("Oculus Rift not detected - creating debug HMD");
+		// Create DK1 debug device if no HMD is detected
 		hmd_ = ovrHmd_CreateDebug(ovrHmd_DK1);
 
 	}
@@ -20,13 +21,13 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 		printf("Oculus Rift detected - display not turned on");
 	}
 
-	// Attach to window for Direct HMD-mode
+	// Attach to window for Direct HMD-mode. Haven't actually been able to test this - crashes my computer
 	ovrHmd_AttachToWindow(hmd_, window, NULL, NULL);
 
 	// Get default eye fovs from the Rift
 	ovrFovPort eyeFov[2] = { hmd_->DefaultEyeFov[0], hmd_->DefaultEyeFov[1] } ;
 
-	// Read render target size from the Rift
+	// Get the recommended render target size from the Rift
 	Sizei recommenedTex0Size = ovrHmd_GetFovTextureSize(hmd_, ovrEye_Left,  hmd_->DefaultEyeFov[0], 1.0f);
 	Sizei recommenedTex1Size = ovrHmd_GetFovTextureSize(hmd_, ovrEye_Right, hmd_->DefaultEyeFov[1], 1.0f);
 	Sizei RenderTargetSize;
@@ -34,8 +35,8 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 	RenderTargetSize.h = irr::core::s32_max ( recommenedTex0Size.h, recommenedTex1Size.h );
 
 	// Create RTT
-	renderTexture_ = 
-		driver_->addRenderTargetTexture(irr::core::dimension2d<irr::u32>(RenderTargetSize.w, RenderTargetSize.h));
+	renderTexture_ = driver_->addRenderTargetTexture(
+		irr::core::dimension2d<irr::u32>(RenderTargetSize.w, RenderTargetSize.h));
 
 	// Set viewport sizes
 	eyeRenderViewport_[0].Pos  = Vector2i(0,0);
@@ -51,7 +52,8 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 		ovrDistortionMesh meshData;
 		// Create eye mesh with all the nice effects
 		ovrHmd_CreateDistortionMesh(hmd_, (ovrEyeType) eye, eyeFov[eye],
-									ovrDistortionCap_Chromatic |  ovrDistortionCap_TimeWarp | ovrDistortionCap_Vignette, &meshData);
+									ovrDistortionCap_Chromatic |  ovrDistortionCap_TimeWarp | 
+									ovrDistortionCap_Vignette, &meshData);
 
 		ovrDistortionVertex *vert = meshData.pVertexData;
 
@@ -62,11 +64,11 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 			v.Pos.X = vert->ScreenPosNDC.x;
 			v.Pos.Y = vert->ScreenPosNDC.y;
 
+			// Map timewarp and vignette to color
 			v.Color = irr::video::SColor((int)(vert->TimeWarpFactor*255.00f),
-				(int)(vert->VignetteFactor *255.00f), 
-				0, 
-				0);
+				(int)(vert->VignetteFactor *255.00f), 0, 0);
 
+			// Map the stuff used by chromatic aberration(?)
 			v.TCoords.X = vert->TanEyeAnglesR.x;
 			v.TCoords.Y = vert->TanEyeAnglesR.y;
 			v.TCoords2.X = vert->TanEyeAnglesB.x;
@@ -74,27 +76,29 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 			v.Normal.X = vert->TanEyeAnglesG.x;
 			v.Normal.Y = vert->TanEyeAnglesG.y;
 
-			EyeVB[eye].push_back(v);
+			EyeVB[eye].push_back(v); // Store the vertex
 			vert++;
 		}
 
 		// Create indices
 		for(unsigned int iNum = 0; iNum < meshData.IndexCount;  iNum++)
-			EyeIB[eye].push_back(meshData.pIndexData[iNum]);
+		{
+			EyeIB[eye].push_back(meshData.pIndexData[iNum]); // Store the index
+		}
 
 		// We no longer need the mesh
 		ovrHmd_DestroyDistortionMesh( &meshData );
 
-		//Create eye render description for later use
+		// Create eye render description for later use
 		eyeRenderDesc_[eye] = ovrHmd_GetRenderDesc(hmd_, (ovrEyeType) eye,  eyeFov[eye]);
 			
-		//Do scale and offset
+		// Get Scale and Offset values from the SDK
 		ovrHmd_GetRenderScaleAndOffset(eyeFov[eye], RenderTargetSize, eyeRenderViewport_[eye], uvScaleOffset_[eye]);
 
 		// Generate eye projections
 		Matrix4f proj = ovrMatrix4f_Projection(eyeRenderDesc_[eye].Fov, 0.1f, 10000.0f, false);
 
-		// Convert to irrlicht's projection matrix
+		// Convert to Irrlicht's projection matrix
 		eyeProjection_[eye][0] = proj.M[0][0];
 		eyeProjection_[eye][5] = proj.M[1][1];
 		eyeProjection_[eye][10] = proj.M[2][2];
@@ -143,15 +147,19 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 	{
 		ovrEyeType eye = hmd_->EyeRenderOrder[i]; 
 		eye_[eye] = smgr_->addEmptySceneNode(headRotationZ_);
-		eye_[eye]->setPosition(eyeDist_[eye]);
+		eye_[eye]->setPosition(eyeDist_[eye]); // apply IPD
 	}
 
+	// Finally add a camera node
 	camera_ = smgr_->addCameraSceneNode(0, irr::core::vector3df(0,0,0), irr::core::vector3df(0,0,100), -1, false);
 }
 
 
 OculusRenderer::~OculusRenderer(void)
 {
+	// Destroy and free the rift
+	ovrHmd_Destroy(hmd_);
+	ovr_Shutdown();	
 }
 
 void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYRotation, irr::video::SColor bgColor)
@@ -164,6 +172,7 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 	irr::core::vector3df headRotation;
 	ovrTrackingState ss = ovrHmd_GetTrackingState(hmd_, 0);
 
+	// Convert orientation from quaternion to euler angles
 	OVR::Quatf qua = ss.HeadPose.ThePose.Orientation;
 	qua.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&(float)headRotation.Y, 
 		&(float)headRotation.X, &(float)headRotation.Z);
@@ -171,6 +180,7 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 	headRotation.Y = -RadToDegree(headRotation.Y);
 	headRotation.Z = RadToDegree(headRotation.Z);
 
+	// Store eye positions to be used with timewarping
 	for(int i=0;i < 2; i++)
 	{
 		ovrEyeType eye = hmd_->EyeRenderOrder[i]; 
@@ -179,6 +189,7 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 
 
 	// Get head position
+	// optimal solution would be to use eye positions instead of head position
 	irr::core::vector3df headPosition;
 	headPosition.X = ss.HeadPose.ThePose.Position.x*10.0f;
 	headPosition.Y = ss.HeadPose.ThePose.Position.y*10.0f;
@@ -186,13 +197,12 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 
 
 	// Set rotations
-	irr::core::vector3df bodyroty = irr::core::vector3df( 0.0f, playerYRotation, 0.0f);
+	irr::core::vector3df bodyroty = irr::core::vector3df( 0.0f, playerYRotation, 0.0f); // Player's y-rotation
 	irr::core::vector3df roty = irr::core::vector3df( 0.0f, headRotation.Y, 0.0f);
-
 	irr::core::vector3df rotx = irr::core::vector3df(headRotation.X, 0.0f, 0.0f);
 	irr::core::vector3df rotz = irr::core::vector3df(0.0f, 0.0f, headRotation.Z);
 
-	// Set rotations to nodes
+	// Apply rotations to nodes
 	bodyRotationY_->setPosition(playerPosition);
 	bodyRotationY_->setRotation(bodyroty);
 
@@ -202,7 +212,8 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 	headRotationZ_->setRotation(rotz);
 
 
-	// Calculate camera orientation vectors
+	// Finally get absolute rotation from the last head node. This replaces the need
+	// to use any difficult math and let the engine handle it instead :)
 	irr::core::matrix4 m;
 	m.setRotationDegrees(headRotationZ_->getAbsoluteTransformation().getRotationDegrees());
 
@@ -214,11 +225,15 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 	irr::core::vector3df upv = irr::core::vector3df (0.0f, 1.0f, 0.0f);
 	m.transformVect(upv);
 
+
+	// Set render target for rendering
 	driver_->setRenderTarget(renderTexture_, true, true, bgColor);
 
+	// Store current camera and switch to our camera
 	irr::scene::ICameraSceneNode *tmpCamera = smgr_->getActiveCamera();
 	smgr_->setActiveCamera(camera_);
 
+	// Store current viewport
 	irr::core::rect<irr::s32> oldView = driver_->getViewPort();
 
 	// Render eyes
@@ -226,19 +241,21 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 	{
 		ovrEyeType eye = hmd_->EyeRenderOrder[i]; 
 
+		// Set viewport which was stored earlier
 		driver_->setViewPort(irr::core::rect<irr::s32>(
 			eyeRenderViewport_[eye].Pos.x, 
 			eyeRenderViewport_[eye].Pos.y, 
 			eyeRenderViewport_[eye].Pos.x  + eyeRenderViewport_[eye].Size.w, 
 			eyeRenderViewport_[eye].Pos.y  + eyeRenderViewport_[eye].Size.h));
 
+		// Make sure the eye's position is up to date
 		eye_[eye]->updateAbsolutePosition();
 
 		// Set camera for the current eye
 		irr::core::vector3df eyepos = eye_[eye]->getAbsolutePosition();
 		camera_->setPosition(eyepos);
 		camera_->setProjectionMatrix(eyeProjection_[eye]);
-		camera_->updateAbsolutePosition();
+		camera_->updateAbsolutePosition(); // probably unnecessary
 		camera_->setTarget(eyepos + frv);
 		camera_->setUpVector(upv);
 
@@ -253,23 +270,24 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 	// Reset to old view
 	driver_->setViewPort(oldView);
 
+	// Post processing could be applied for example here
 	
 	// Prepare to draw distortion
 	renderMaterial_.TextureLayer[0].Texture = renderTexture_;
 	driver_->setRenderTarget(0, true, true, irr::video::SColor(0,0,0,0));
 	driver_->setMaterial(renderMaterial_);
 
-	// add wait-timer here to make timewarp work
+	// add wait-timer here to make timewarp work correctly
 	ovr_WaitTillTime(frameTiming.TimewarpPointSeconds);
 
 	for(int i=0;i<2;i++)
 	{
 		ovrEyeType eye = hmd_->EyeRenderOrder[i];
 
-			
-		// Initialize shader parameters
+		// Get matrixes required by timewarp
 		ovrHmd_GetEyeTimewarpMatrices(hmd_, (ovrEyeType)eye, eyePose_[eye], distortionCB_.timeWarpMatrices);
 
+		// Set the scale and offset values
 		distortionCB_.EyeToSourceUVScale[0] = uvScaleOffset_[eye][0].x;
 		distortionCB_.EyeToSourceUVScale[1] = uvScaleOffset_[eye][0].y;
 		distortionCB_.EyeToSourceUVOffset[0] = uvScaleOffset_[eye][1].x;
