@@ -31,28 +31,26 @@ SOFTWARE.
 #define __OCULUSRENDERER_H_INCLUDED__
 #include <irrlicht.h>
 
-#define OVR_D3D_VERSION 9 //! Is this even necessary?
-
 #include "OVR.h"
 using namespace OVR;
 
 class OculusRenderer
 {
 public:
-	//! Pass the window's handle to the renderer. In DirectX-mode the handle is supposedly HWND
+	/// Pass the window's handle to the renderer. In Windows the handle is supposedly HWND
 	OculusRenderer(void *window, irr::video::IVideoDriver *driver, irr::scene::ISceneManager *smgr);
 	~OculusRenderer(void);
 
-	//! Draw the scene using player's position and rotation around Y-axis. Other rotations are read from Oculus Rift.
-	//! headPosition and playerYRotation will be ignored if linkHeadNode() is called.
-	//! Use this function of SceneManager->drawAll() to get Oculus Rift distortion.
-	//! Doesn't draw GUI. If you want to draw GUI then you should for example pre-render it to a billboard.
+	/// Draw the scene using player's position and rotation around Y-axis. Other rotations are read from Oculus Rift.
+	/// headPosition and playerYRotation will be ignored if linkHeadNode() is used.
+	/// Use this function instead of SceneManager->drawAll() to get Oculus Rift distortion.
+	/// Doesn't draw GUI. If you want to draw GUI then you should for example pre-render it to a billboard.
 	void drawAll(irr::core::vector3df headPosition, float playerYRotation, irr::video::SColor bgColor);
 
-	//! Use this if you want to link the head position to some node instead of specifying the position every frame
-	//! This will also apply rotations so may work for space flight etc
+	/// Use this if you want to link the head position to some node instead of specifying the position every frame
+	/// This will also apply rotations so may work for space flight, rollercoasters etc
 	void linkHeadNode(irr::scene::ISceneNode *headNode);
-	//! Get linked head node
+	/// Get linked head node
 	irr::scene::ISceneNode *getHeadNode() const;
 
 private:
@@ -67,7 +65,7 @@ private:
 
 	irr::video::ITexture *renderTexture_;
 
-	//! Eye distortion meshes
+	// Eye distortion meshes
 	irr::core::array<irr::video::S3DVertex2TCoords> EyeVB[2];
 	irr::core::array<unsigned short> EyeIB[2];
 	irr::video::SMaterial renderMaterial_;
@@ -76,19 +74,19 @@ private:
 	irr::core::matrix4 eyeProjection_[2];
 	irr::core::vector3df eyeDist_[2];
 
-	irr::scene::ISceneNode *bodyRotationY_; //! The rotation of our body
-	irr::scene::ISceneNode *headRotationY_; //! Head's rotation around Y-axis from the rift - also contains the tracked head position
-	irr::scene::ISceneNode *headRotationX_; //! Head's rotation around X-axis from the rift
-	irr::scene::ISceneNode *headRotationZ_; //! Head's rotation around Z-axis from the rift
+	irr::scene::ISceneNode *bodyRotationY_; // The rotation of our body
+	irr::scene::ISceneNode *headRotationY_; // Head's rotation around Y-axis from the rift - also contains the tracked head position
+	irr::scene::ISceneNode *headRotationX_; // Head's rotation around X-axis from the rift
+	irr::scene::ISceneNode *headRotationZ_; // Head's rotation around Z-axis from the rift
 
 	irr::scene::ISceneNode *linkedHead_; // linked head node
 
-	irr::scene::ISceneNode *eye_[2]; //! These hold the eye positions
+	irr::scene::ISceneNode *eye_[2]; // These hold the eye positions
 
 	irr::scene::ICameraSceneNode * camera_;
 
 
-	//! Shader callback for the Oculus Rift distortion shader
+	/// Shader callback for the Oculus Rift distortion shader
 	class OculusDistorsionCallback: public irr::video::IShaderConstantSetCallBack
 	{
 	public:

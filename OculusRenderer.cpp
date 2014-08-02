@@ -29,6 +29,7 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 	// Get the recommended render target size from the Rift
 	Sizei recommenedTex0Size = ovrHmd_GetFovTextureSize(hmd_, ovrEye_Left,  hmd_->DefaultEyeFov[0], 1.0f);
 	Sizei recommenedTex1Size = ovrHmd_GetFovTextureSize(hmd_, ovrEye_Right, hmd_->DefaultEyeFov[1], 1.0f);
+
 	Sizei RenderTargetSize;
 	RenderTargetSize.w = recommenedTex0Size.w + recommenedTex1Size.w;
 	RenderTargetSize.h = irr::core::s32_max ( recommenedTex0Size.h, recommenedTex1Size.h );
@@ -109,8 +110,6 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 		// IPD
 		eyeDist_[eye] = irr::core::vector3df(eyeRenderDesc_[eye].ViewAdjust.x * -10.0f,
 			eyeRenderDesc_[eye].ViewAdjust.y,eyeRenderDesc_[eye].ViewAdjust.z);
-
-
 	}
 
 	// Init low persistence & prediction
@@ -130,15 +129,19 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 	irr::video::IGPUProgrammingServices* gpu = driver_->getGPUProgrammingServices();
 
 	if(driver_->getDriverType() == irr::video::EDT_DIRECT3D9)
+	{
 		renderMaterial_.MaterialType=
 			(irr::video::E_MATERIAL_TYPE)gpu->addHighLevelShaderMaterialFromFiles("media/oculus.hlsl","vs_main", 
 				irr::video::EVST_VS_2_0,
 				"media/oculus.hlsl","main", irr::video::EPST_PS_2_0, &distortionCB_, irr::video::EMT_SOLID, 0);
+	}
 	else if(driver_->getDriverType() == irr::video::EDT_OPENGL)
+	{
 		renderMaterial_.MaterialType=
 			(irr::video::E_MATERIAL_TYPE)gpu->addHighLevelShaderMaterialFromFiles("media/oculus_vs.glsl","main", 
 				irr::video::EVST_VS_2_0,
 				"media/oculus_fs.glsl","main", irr::video::EPST_PS_2_a, &distortionCB_, irr::video::EMT_SOLID, 0);
+	}
 
 	// Generate nodes for the head rotations - feel free to replace with math
 	bodyRotationY_ = smgr_->addEmptySceneNode(0);
@@ -172,7 +175,6 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 	// Start frame timing - used by timewarp
 	ovrFrameTiming frameTiming = ovrHmd_BeginFrameTiming(hmd_, 0); 
 
-
 	// Get head rotation
 	irr::core::vector3df headRotation;
 	ovrTrackingState ss = ovrHmd_GetTrackingState(hmd_, 0);
@@ -192,7 +194,6 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 		eyePose_[eye] = ovrHmd_GetEyePose(hmd_, eye);
 	}
 
-
 	// Get head position
 	// optimal solution would be to use eye positions instead of head position
 	irr::core::vector3df headPosition;
@@ -210,6 +211,7 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 	// Apply rotations to nodes
 	if(!this->getHeadNode())
 	{
+		// Only apply these if not linked to a node
 		bodyRotationY_->setPosition(playerPosition);
 		bodyRotationY_->setRotation(bodyroty);
 	}
