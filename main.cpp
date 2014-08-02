@@ -30,13 +30,14 @@ int main()
 	OculusRenderer oculusRenderer(window, driver, smgr);
 
 
-	// FPS camera with no vertical movement. Use Oculus Rift for that
+	// FPS camera with no vertical movement.
     scene::ICameraSceneNode* camera = smgr->addCameraSceneNodeFPS(0, 100.0f, 0.5f, -1,
 			0, 0, true,
 			0.f, false,
 			true);
 
 	camera->setPosition(irr::core::vector3df(0, 200.0f, 0));
+	camera->setTarget(irr::core::vector3df(0, 200.0f, 100.0f));
 
     // add stuff
 	scene::ITerrainSceneNode* terrain = smgr->addTerrainSceneNode(
@@ -56,7 +57,18 @@ int main()
 	terrain->setMaterialTexture(0,
 			driver->getTexture("media/terraintex.png"));
 
+	/* Enable this to try linking head to a rotating animator. Could be used to link player to plane's cockpit etc
 
+	irr::scene::ISceneNode *rotatingNode = smgr->addEmptySceneNode();
+	rotatingNode->setPosition(irr::core::vector3df(3000, 760, 3000));
+	irr::scene::ISceneNode *rotatingChild = smgr->addEmptySceneNode(rotatingNode);
+	rotatingChild->setPosition(irr::core::vector3df(0.0f,40.0f, 0.0f));
+	irr::scene::ISceneNodeAnimator *anim = smgr->createRotationAnimator(irr::core::vector3df(1.0f,0,0.0f));
+	rotatingNode->addAnimator(anim);
+	anim->drop();
+
+	oculusRenderer.linkHeadNode(rotatingChild);
+	*/
 
     int frames = 0;
 
@@ -66,8 +78,9 @@ int main()
 
 		camera->OnAnimate(device->getTimer()->getTime());
 		camera->updateAbsolutePosition();
+
 		oculusRenderer.drawAll(camera->getAbsolutePosition(), camera->getRotation().Y, irr::video::SColor(255, 150, 140, 255));
-        
+
         driver->endScene();
 
 		if(++frames == 100)

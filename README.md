@@ -1,14 +1,16 @@
 IrrOculusVR
 ===========
 
-Oculus Rift SDK 0.4.0 support for Irrlicht 1.8.1 using DirectX 9.
-OpenGL-support requires some changes to the shader.
+Oculus Rift SDK 0.4.0 support for Irrlicht 1.8.1 using DirectX 9 and OpenGL.
 
 The Oculus Rift-support is still experimental and hasn't been yet tested with a development kit.
 
-The implementation is made FPS cameras in mind. This means that the player's body cannot rotate
-around other axes than Y. For space flight-style cameras some modifications will be required.
+The renderer can either take player's position and rotation around Y-axis as a parameter during
+rendering or alternatively it's possible to link to player's head node. The linking is a good
+solution for example for simulators while the other approach works nicely for FPS games.
 
-The player's direction and head rotation aren't linked together.
+main.cpp contains simple example using the FPS-approach.
 
-main.cpp contains simple example of use.
+
+Feel free to contact me about this through Twitter:
+@Suskigek

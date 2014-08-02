@@ -44,9 +44,16 @@ public:
 	~OculusRenderer(void);
 
 	//! Draw the scene using player's position and rotation around Y-axis. Other rotations are read from Oculus Rift.
-	//! Call this instead of SceneManager->drawAll();
+	//! headPosition and playerYRotation will be ignored if linkHeadNode() is called.
+	//! Use this function of SceneManager->drawAll() to get Oculus Rift distortion.
 	//! Doesn't draw GUI. If you want to draw GUI then you should for example pre-render it to a billboard.
-	void drawAll(irr::core::vector3df playerPosition, float playerYRotation, irr::video::SColor bgColor);
+	void drawAll(irr::core::vector3df headPosition, float playerYRotation, irr::video::SColor bgColor);
+
+	//! Use this if you want to link the head position to some node instead of specifying the position every frame
+	//! This will also apply rotations so may work for space flight etc
+	void linkHeadNode(irr::scene::ISceneNode *headNode);
+	//! Get linked head node
+	irr::scene::ISceneNode *getHeadNode() const;
 
 private:
 	ovrHmd hmd_;
@@ -73,6 +80,8 @@ private:
 	irr::scene::ISceneNode *headRotationY_; //! Head's rotation around Y-axis from the rift - also contains the tracked head position
 	irr::scene::ISceneNode *headRotationX_; //! Head's rotation around X-axis from the rift
 	irr::scene::ISceneNode *headRotationZ_; //! Head's rotation around Z-axis from the rift
+
+	irr::scene::ISceneNode *linkedHead_; // linked head node
 
 	irr::scene::ISceneNode *eye_[2]; //! These hold the eye positions
 

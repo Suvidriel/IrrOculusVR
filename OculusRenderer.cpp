@@ -2,8 +2,7 @@
 
 
 OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver, 
-							   irr::scene::ISceneManager *smgr) :
-	driver_(driver), smgr_(smgr)
+	irr::scene::ISceneManager *smgr) : driver_(driver), smgr_(smgr), linkedHead_(0)
 {
 	// Initialize the rift
 	ovr_Initialize();
@@ -209,8 +208,11 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 	irr::core::vector3df rotz = irr::core::vector3df(0.0f, 0.0f, headRotation.Z);
 
 	// Apply rotations to nodes
-	bodyRotationY_->setPosition(playerPosition);
-	bodyRotationY_->setRotation(bodyroty);
+	if(!this->getHeadNode())
+	{
+		bodyRotationY_->setPosition(playerPosition);
+		bodyRotationY_->setRotation(bodyroty);
+	}
 
 	headRotationY_->setRotation(roty);
 	headRotationY_->setPosition(headPosition);
@@ -305,4 +307,19 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 
 	// And we're done
 	ovrHmd_EndFrameTiming(hmd_);
+}
+
+void OculusRenderer::linkHeadNode(irr::scene::ISceneNode *headNode)
+{
+	linkedHead_ = headNode;
+
+	if(linkedHead_)
+		bodyRotationY_->setParent(linkedHead_);
+	else
+		bodyRotationY_->setParent(smgr_->getRootSceneNode());
+}
+
+irr::scene::ISceneNode *OculusRenderer::getHeadNode() const
+{
+	return linkedHead_;
 }
