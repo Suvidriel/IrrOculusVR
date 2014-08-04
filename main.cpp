@@ -11,7 +11,7 @@ int main()
 	int height = 720;
 	irr::video::E_DRIVER_TYPE driverType = video::EDT_DIRECT3D9;
 
-    // Initialize Irrlicht
+    	// Initialize Irrlicht
 	const core::dimension2du videoDim(width,height);
 
 	IrrlichtDevice *device = createDevice(driverType, videoDim, 32, false );
@@ -19,27 +19,31 @@ int main()
 	video::IVideoDriver* driver = device->getVideoDriver();
 	scene::ISceneManager* smgr = device->getSceneManager();
 
+
 	// Get the window handle for Oculus Rift SDK
 	void *window = 0;
+	
 	if(driverType == irr::video::EDT_DIRECT3D9)
 		window = driver->getExposedVideoData().D3D9.HWnd;
 	else if(driverType == irr::video::EDT_OPENGL) // OpenGL under windows - no idea how it's done in Linux
 		window = driver->getExposedVideoData().OpenGLWin32.HWnd;
+
 
 	// Initialize Oculus Rift Renderer
 	OculusRenderer oculusRenderer(window, driver, smgr);
 
 
 	// FPS camera with no vertical movement.
-    scene::ICameraSceneNode* camera = smgr->addCameraSceneNodeFPS(0, 100.0f, 0.5f, -1,
-			0, 0, true,
-			0.f, false,
-			true);
+    	scene::ICameraSceneNode* camera = smgr->addCameraSceneNodeFPS(0, 100.0f, 0.5f, -1,
+		0, 0, true,
+		0.f, false,
+		true);
 
 	camera->setPosition(irr::core::vector3df(0, 200.0f, 0));
 	camera->setTarget(irr::core::vector3df(0, 200.0f, 100.0f));
 
-    // add stuff
+
+    	// add stuff
 	scene::ITerrainSceneNode* terrain = smgr->addTerrainSceneNode(
 		"media/terrain.png",
 		0,					// parent node
@@ -57,6 +61,7 @@ int main()
 	terrain->setMaterialTexture(0,
 			driver->getTexture("media/terraintex.png"));
 
+
 	/* Enable this to try linking head to a rotating animator. Could be used to link player to plane's cockpit etc
 
 	irr::scene::ISceneNode *rotatingNode = smgr->addEmptySceneNode();
@@ -70,18 +75,19 @@ int main()
 	oculusRenderer.linkHeadNode(rotatingChild);
 	*/
 
-    int frames = 0;
+    	int frames = 0;
 
-    while(device->run())
-    {
-        driver->beginScene(true, true, irr::video::SColor(255, 150, 140, 255));
+    	while(device->run())
+    	{
+        	driver->beginScene(true, true, irr::video::SColor(255, 150, 140, 255));
 
 		camera->OnAnimate(device->getTimer()->getTime());
 		camera->updateAbsolutePosition();
 
-		oculusRenderer.drawAll(camera->getAbsolutePosition(), camera->getRotation().Y, irr::video::SColor(255, 150, 140, 255));
+		oculusRenderer.drawAll(camera->getAbsolutePosition(), camera->getRotation().Y, 
+			irr::video::SColor(255, 150, 140, 255));
 
-        driver->endScene();
+        	driver->endScene();
 
 		if(++frames == 100)
 		{
@@ -92,7 +98,7 @@ int main()
 
 			frames = 0;
 		}
-    }
+    	}
 
-    return 0;
+    	return 0;
 }
