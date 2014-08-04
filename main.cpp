@@ -30,7 +30,7 @@ int main()
 
 
 	// Initialize Oculus Rift Renderer
-	OculusRenderer oculusRenderer(window, driver, smgr);
+	OculusRenderer oculusRenderer(window, driver, smgr, 100.0f);
 
 
 	// FPS camera with no vertical movement.

@@ -2,7 +2,7 @@
 
 
 OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver, 
-	irr::scene::ISceneManager *smgr) : driver_(driver), smgr_(smgr), linkedHead_(0)
+							   irr::scene::ISceneManager *smgr, float worldScale) : driver_(driver), smgr_(smgr), linkedHead_(0), worldScale_(worldScale)
 {
 	// Initialize the rift
 	ovr_Initialize();
@@ -197,9 +197,9 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 	// Get head position
 	// optimal solution would be to use eye positions instead of head position
 	irr::core::vector3df headPosition;
-	headPosition.X = ss.HeadPose.ThePose.Position.x*10.0f;
-	headPosition.Y = ss.HeadPose.ThePose.Position.y*10.0f;
-	headPosition.Z = ss.HeadPose.ThePose.Position.z*-10.0f;
+	headPosition.X = ss.HeadPose.ThePose.Position.x*worldScale_;
+	headPosition.Y = ss.HeadPose.ThePose.Position.y*worldScale_;
+	headPosition.Z = ss.HeadPose.ThePose.Position.z*-worldScale_;
 
 
 	// Set rotations

@@ -38,7 +38,8 @@ class OculusRenderer
 {
 public:
 	/// Pass the window's handle to the renderer. In Windows the handle is supposedly HWND
-	OculusRenderer(void *window, irr::video::IVideoDriver *driver, irr::scene::ISceneManager *smgr);
+	/// worldScale is used with positional tracking to multiply the values from the tracker.
+	OculusRenderer(void *window, irr::video::IVideoDriver *driver, irr::scene::ISceneManager *smgr, float worldScale);
 	~OculusRenderer(void);
 
 	/// Draw the scene using player's position and rotation around Y-axis. Other rotations are read from Oculus Rift.
@@ -84,6 +85,8 @@ private:
 	irr::scene::ISceneNode *eye_[2]; // These hold the eye positions
 
 	irr::scene::ICameraSceneNode * camera_;
+
+	float worldScale_
 
 
 	/// Shader callback for the Oculus Rift distortion shader
