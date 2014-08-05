@@ -172,6 +172,10 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 
 OculusRenderer::~OculusRenderer(void)
 {
+	// Remove nodes since they're no longer needed
+	camera_->remove();
+	bodyRotationY_->remove();
+
 	// Destroy and free the rift
 	ovrHmd_Destroy(hmd_);
 	ovr_Shutdown();	
