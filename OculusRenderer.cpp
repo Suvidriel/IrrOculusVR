@@ -220,6 +220,7 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 	headRotationY_->setPosition(headPosition);
 	headRotationX_->setRotation(rotx);
 	headRotationZ_->setRotation(rotz);
+	headRotationZ_->updateAbsolutePosition();
 
 
 	// Finally get absolute rotation from the last head node. This replaces the need

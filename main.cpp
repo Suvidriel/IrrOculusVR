@@ -14,7 +14,7 @@ int main()
     	// Initialize Irrlicht
 	const core::dimension2du videoDim(width,height);
 
-	IrrlichtDevice *device = createDevice(driverType, videoDim, 32, false );
+	IrrlichtDevice *device = createDevice(driverType, videoDim, 32, false, false, true );
 
 	video::IVideoDriver* driver = device->getVideoDriver();
 	scene::ISceneManager* smgr = device->getSceneManager();
@@ -30,7 +30,7 @@ int main()
 
 
 	// Initialize Oculus Rift Renderer
-	OculusRenderer oculusRenderer(window, driver, smgr, 100.0f);
+	OculusRenderer oculusRenderer(window, driver, smgr, 20.0f);
 
 
 	// FPS camera with no vertical movement.
@@ -39,8 +39,8 @@ int main()
 		0.f, false,
 		true);
 
-	camera->setPosition(irr::core::vector3df(0, 200.0f, 0));
-	camera->setTarget(irr::core::vector3df(0, 200.0f, 100.0f));
+	camera->setPosition(irr::core::vector3df(10, 10.0f, 0));
+	camera->setTarget(irr::core::vector3df(10, 10.0f, 100.0f));
 
 
     	// add stuff
@@ -50,7 +50,7 @@ int main()
 		-1,					// node id
 		core::vector3df(0.f, -20.f, 0.f),		// position
 		core::vector3df(0.f, 0.f, 0.f),		// rotation
-		core::vector3df(40.f, 4.4f, 40.f),	// scale
+		core::vector3df(1.f, 0.5f, 1.f),	// scale
 		video::SColor ( 255, 255, 255, 255 ),	// vertexColor
 		5,					// maxLOD
 		scene::ETPS_17,				// patchSize
@@ -65,9 +65,9 @@ int main()
 	/* Enable this to try linking head to a rotating animator. Could be used to link player to plane's cockpit etc
 
 	irr::scene::ISceneNode *rotatingNode = smgr->addEmptySceneNode();
-	rotatingNode->setPosition(irr::core::vector3df(3000, 760, 3000));
+	rotatingNode->setPosition(irr::core::vector3df(10, 50, 10));
 	irr::scene::ISceneNode *rotatingChild = smgr->addEmptySceneNode(rotatingNode);
-	rotatingChild->setPosition(irr::core::vector3df(0.0f,40.0f, 0.0f));
+	rotatingChild->setPosition(irr::core::vector3df(0.0f,4.0f, 0.0f));
 	irr::scene::ISceneNodeAnimator *anim = smgr->createRotationAnimator(irr::core::vector3df(1.0f,0,0.0f));
 	rotatingNode->addAnimator(anim);
 	anim->drop();

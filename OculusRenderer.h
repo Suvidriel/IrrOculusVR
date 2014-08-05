@@ -86,7 +86,7 @@ private:
 
 	irr::scene::ICameraSceneNode * camera_;
 
-	float worldScale_
+	float worldScale_;
 
 
 	/// Shader callback for the Oculus Rift distortion shader
