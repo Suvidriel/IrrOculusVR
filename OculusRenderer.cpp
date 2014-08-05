@@ -2,7 +2,8 @@
 
 
 OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver, 
-							   irr::scene::ISceneManager *smgr, float worldScale) : driver_(driver), smgr_(smgr), linkedHead_(0), worldScale_(worldScale)
+	irr::scene::ISceneManager *smgr, float worldScale) : driver_(driver), 
+	smgr_(smgr), linkedHead_(0), worldScale_(worldScale)
 {
 	// Initialize the rift
 	ovr_Initialize();
@@ -52,8 +53,8 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 		ovrDistortionMesh meshData;
 		// Create eye mesh with all the nice effects
 		ovrHmd_CreateDistortionMesh(hmd_, (ovrEyeType) eye, eyeFov[eye],
-									ovrDistortionCap_Chromatic |  ovrDistortionCap_TimeWarp | 
-									ovrDistortionCap_Vignette, &meshData);
+			ovrDistortionCap_Chromatic |  ovrDistortionCap_TimeWarp | 
+			ovrDistortionCap_Vignette, &meshData);
 
 		ovrDistortionVertex *vert = meshData.pVertexData;
 
@@ -93,7 +94,8 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 		eyeRenderDesc_[eye] = ovrHmd_GetRenderDesc(hmd_, (ovrEyeType) eye,  eyeFov[eye]);
 			
 		// Get Scale and Offset values from the SDK
-		ovrHmd_GetRenderScaleAndOffset(eyeFov[eye], RenderTargetSize, eyeRenderViewport_[eye], uvScaleOffset_[eye]);
+		ovrHmd_GetRenderScaleAndOffset(eyeFov[eye], RenderTargetSize, eyeRenderViewport_[eye], 
+			uvScaleOffset_[eye]);
 
 		// Generate eye projections
 		Matrix4f proj = ovrMatrix4f_Projection(eyeRenderDesc_[eye].Fov, 0.1f, 10000.0f, false);
@@ -117,8 +119,8 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 
 	// Init tracking
 	ovrHmd_ConfigureTracking(hmd_, ovrTrackingCap_Orientation |
-							ovrTrackingCap_MagYawCorrection |
-							ovrTrackingCap_Position, 0);
+		ovrTrackingCap_MagYawCorrection |
+		ovrTrackingCap_Position, 0);
 
 	// Generate material for distortion meshes
 	renderMaterial_.Wireframe = false;
@@ -131,16 +133,20 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 	if(driver_->getDriverType() == irr::video::EDT_DIRECT3D9)
 	{
 		renderMaterial_.MaterialType=
-			(irr::video::E_MATERIAL_TYPE)gpu->addHighLevelShaderMaterialFromFiles("media/oculus.hlsl","vs_main", 
+			(irr::video::E_MATERIAL_TYPE)gpu->addHighLevelShaderMaterialFromFiles(
+				"media/oculus.hlsl","vs_main", 
 				irr::video::EVST_VS_2_0,
-				"media/oculus.hlsl","main", irr::video::EPST_PS_2_0, &distortionCB_, irr::video::EMT_SOLID, 0);
+				"media/oculus.hlsl","main", irr::video::EPST_PS_2_0, 
+				&distortionCB_, irr::video::EMT_SOLID, 0);
 	}
 	else if(driver_->getDriverType() == irr::video::EDT_OPENGL)
 	{
 		renderMaterial_.MaterialType=
-			(irr::video::E_MATERIAL_TYPE)gpu->addHighLevelShaderMaterialFromFiles("media/oculus_vs.glsl","main", 
+			(irr::video::E_MATERIAL_TYPE)gpu->addHighLevelShaderMaterialFromFiles(
+				"media/oculus_vs.glsl","main", 
 				irr::video::EVST_VS_2_0,
-				"media/oculus_fs.glsl","main", irr::video::EPST_PS_2_a, &distortionCB_, irr::video::EMT_SOLID, 0);
+				"media/oculus_fs.glsl","main", irr::video::EPST_PS_2_a, 
+				&distortionCB_, irr::video::EMT_SOLID, 0);
 	}
 
 	// Generate nodes for the head rotations - feel free to replace with math
@@ -159,7 +165,8 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 	}
 
 	// Finally add a camera node
-	camera_ = smgr_->addCameraSceneNode(0, irr::core::vector3df(0,0,0), irr::core::vector3df(0,0,100), -1, false);
+	camera_ = smgr_->addCameraSceneNode(0, irr::core::vector3df(0,0,0), 
+		irr::core::vector3df(0,0,100), -1, false);
 }
 
 
@@ -305,7 +312,8 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 		distortionCB_.EyeToSourceUVOffset[1] = uvScaleOffset_[eye][1].y;
 
 		// Draw eye
-		driver_->drawIndexedTriangleList(&EyeVB[(int)eye][0], EyeVB[(int)eye].size(), &EyeIB[(int)eye][0], EyeIB[(int)eye].size()/3);
+		driver_->drawIndexedTriangleList(&EyeVB[(int)eye][0], EyeVB[(int)eye].size(), 
+			&EyeIB[(int)eye][0], EyeIB[(int)eye].size()/3);
 	}
 
 	// And we're done
