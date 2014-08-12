@@ -1,7 +1,7 @@
 IrrOculusVR
 ===========
 
-Oculus Rift SDK 0.4.0 support for Irrlicht 1.8.1 using DirectX 9 and OpenGL (Windows). 
+Oculus Rift SDK 0.4.1 support for Irrlicht 1.8.1 using DirectX 9 and OpenGL (Windows). 
 
 Supports both Oculus Rift DK1 and DK2.
 
@@ -15,5 +15,5 @@ main.cpp contains simple example using the FPS-approach.
 Feel free to contact me about this through Twitter:
 @Suskigek
 
-You can get the Oculus Rift SDK 0.4.0 here:
+You can get the Oculus Rift SDK here:
 https://developer.oculusvr.com/?action=dl
