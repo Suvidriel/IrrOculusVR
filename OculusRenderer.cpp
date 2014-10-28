@@ -110,8 +110,8 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 		eyeProjection_[eye][9] = proj.M[1][2];
 
 		// IPD
-		eyeDist_[eye] = irr::core::vector3df(eyeRenderDesc_[eye].ViewAdjust.x * -10.0f,
-			eyeRenderDesc_[eye].ViewAdjust.y,eyeRenderDesc_[eye].ViewAdjust.z);
+		eyeDist_[eye] = irr::core::vector3df(eyeRenderDesc_[eye].HmdToEyeViewOffset.x * -10.0f,
+			eyeRenderDesc_[eye].HmdToEyeViewOffset.y,eyeRenderDesc_[eye].HmdToEyeViewOffset.z);
 	}
 
 	// Init low persistence & prediction
@@ -202,7 +202,7 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 	for(int i=0;i < 2; i++)
 	{
 		ovrEyeType eye = hmd_->EyeRenderOrder[i]; 
-		eyePose_[eye] = ovrHmd_GetEyePose(hmd_, eye);
+		eyePose_[eye] = ovrHmd_GetHmdPosePerEye(hmd_, eye);
 	}
 
 	// Get head position
