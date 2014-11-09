@@ -110,8 +110,10 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 		eyeProjection_[eye][9] = proj.M[1][2];
 
 		// IPD
-		eyeDist_[eye] = irr::core::vector3df(eyeRenderDesc_[eye].HmdToEyeViewOffset.x * -10.0f,
-			eyeRenderDesc_[eye].HmdToEyeViewOffset.y,eyeRenderDesc_[eye].HmdToEyeViewOffset.z);
+		// The IPD should also be affected by the scale of the world
+		// Should y and z be multiplied with negative worldScale? SDK likely returns 0 for both currently
+		eyeDist_[eye] = irr::core::vector3df(eyeRenderDesc_[eye].HmdToEyeViewOffset.x * -worldScale,
+			eyeRenderDesc_[eye].HmdToEyeViewOffset.y * worldScale, eyeRenderDesc_[eye].HmdToEyeViewOffset.z * worldScale);
 	}
 
 	// Init low persistence & prediction
@@ -130,6 +132,7 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 
 	irr::video::IGPUProgrammingServices* gpu = driver_->getGPUProgrammingServices();
 
+	// TODO: include the shaders inside source rather than as external files
 	if(driver_->getDriverType() == irr::video::EDT_DIRECT3D9)
 	{
 		renderMaterial_.MaterialType=
