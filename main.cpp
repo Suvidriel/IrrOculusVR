@@ -29,8 +29,8 @@ int main()
 		window = driver->getExposedVideoData().OpenGLWin32.HWnd;
 
 
-	// Initialize Oculus Rift Renderer
-	OculusRenderer oculusRenderer(window, driver, smgr, 20.0f);
+	// Initialize Oculus Rift Renderer - world scale set to normal
+	OculusRenderer oculusRenderer(window, driver, smgr, 1.0f);
 
 
 	// FPS camera with no vertical movement.
