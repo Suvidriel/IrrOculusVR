@@ -192,8 +192,8 @@ void OculusRenderer::drawAll(irr::core::vector3df playerPosition, float playerYR
 
 	// Convert orientation from quaternion to euler angles
 	OVR::Quatf qua = ss.HeadPose.ThePose.Orientation;
-	qua.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&(float)headRotation.Y, 
-		&(float)headRotation.X, &(float)headRotation.Z);
+	qua.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&headRotation.Y, 
+		&headRotation.X, &headRotation.Z);
 	headRotation.X = -RadToDegree(headRotation.X);
 	headRotation.Y = -RadToDegree(headRotation.Y);
 	headRotation.Z = RadToDegree(headRotation.Z);
