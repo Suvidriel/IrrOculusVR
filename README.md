@@ -15,7 +15,7 @@ main.cpp contains simple example using the FPS-approach.
 
 
 Feel free to contact me about this through Twitter:
-@Suskigek
+@Suvidriel
 
 You can get the Oculus Rift SDK here:
 https://developer.oculusvr.com/?action=dl
