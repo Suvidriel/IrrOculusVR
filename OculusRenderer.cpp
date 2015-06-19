@@ -53,7 +53,7 @@ OculusRenderer::OculusRenderer(void *window, irr::video::IVideoDriver *driver,
 		ovrDistortionMesh meshData;
 		// Create eye mesh with all the nice effects
 		ovrHmd_CreateDistortionMesh(hmd_, (ovrEyeType) eye, eyeFov[eye],
-			ovrDistortionCap_Chromatic |  ovrDistortionCap_TimeWarp | 
+			ovrDistortionCap_TimeWarp | 
 			ovrDistortionCap_Vignette, &meshData);
 
 		ovrDistortionVertex *vert = meshData.pVertexData;
